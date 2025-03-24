@@ -91,12 +91,11 @@ export default function ScanSection({ recentSearches = [] }: ScanSectionProps) {
             <BarcodeScanner
               onDetected={handleBarcodeDetected}
               onClose={() => setIsScannerOpen(false)}
-              className="h-64 rounded-xl"
+              className="h-72 rounded-xl"
             />
           ) : (
             <div 
-              className="bg-gray-100 dark:bg-slate-800 border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl p-8 relative overflow-hidden"
-              onClick={() => setIsScannerOpen(true)}
+              className="bg-gray-100 dark:bg-slate-800 border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl p-8 relative overflow-hidden cursor-pointer"
             >
               <div className="mb-4 text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -107,10 +106,15 @@ export default function ScanSection({ recentSearches = [] }: ScanSectionProps) {
                   <line x1="15" y1="3" x2="15" y2="21" />
                 </svg>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">Tap to scan product barcode</p>
-              <Button className="bg-primary-500 hover:bg-primary-600 text-white">
-                Start Camera
-              </Button>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center">Use your device's camera to scan a product barcode</p>
+              <div className="text-center">
+                <Button 
+                  className="bg-primary-500 hover:bg-primary-600 text-white" 
+                  onClick={() => setIsScannerOpen(true)}
+                >
+                  Open Camera
+                </Button>
+              </div>
             </div>
           )}
         </div>

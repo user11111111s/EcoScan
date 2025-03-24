@@ -21,6 +21,7 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
       try {
         const Quagga = (await import('quagga')).default;
         scannerRef.current = Quagga;
+        console.log("Quagga library loaded successfully");
       } catch (error) {
         console.error("Failed to load barcode scanning library", error);
         setScanError("Failed to load scanning library");
@@ -31,8 +32,13 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
 
     // Cleanup function
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop();
+      if (scannerRef.current && isScanning) {
+        try {
+          console.log("Stopping scanner on unmount");
+          scannerRef.current.stop();
+        } catch (err) {
+          console.error("Error stopping scanner:", err);
+        }
       }
     };
   }, []);
@@ -40,20 +46,54 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
   const startScanner = async () => {
     setIsScanning(true);
     setScanError(null);
+    console.log("Starting scanner...");
 
     if (!scannerRef.current) {
-      setScanError("Scanner not initialized");
+      console.error("Scanner not initialized");
+      setScanError("Scanner not initialized. Please try again.");
       setIsScanning(false);
       return;
     }
 
     try {
+      // First check if we have camera permissions
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: "environment" } 
+        });
+        // Stop the stream immediately, we just needed to check permissions
+        stream.getTracks().forEach(track => track.stop());
+        console.log("Camera permission granted");
+      } catch (err) {
+        console.error("Camera permission denied:", err);
+        setScanError("Camera permission denied. Please allow camera access.");
+        setIsScanning(false);
+        return;
+      }
+
+      // Now initialize Quagga
+      console.log("Initializing Quagga...");
+      
+      // Create detection handler function
+      const detectionHandler = (result: any) => {
+        console.log("Barcode detected:", result);
+        if (result && result.codeResult) {
+          onDetected(result.codeResult.code);
+          if (scannerRef.current) {
+            scannerRef.current.stop();
+            setIsScanning(false);
+          }
+        }
+      };
+
       scannerRef.current.init({
         inputStream: {
           name: "Live",
           type: "LiveStream",
           target: videoRef.current,
           constraints: {
+            width: 640,
+            height: 480,
             facingMode: "environment"
           },
         },
@@ -62,6 +102,7 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
           halfSample: true
         },
         numOfWorkers: 2,
+        frequency: 10,
         decoder: {
           readers: ["ean_reader", "ean_8_reader", "code_128_reader", "code_39_reader", "upc_reader"]
         },
@@ -69,26 +110,22 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
       }, function(err: any) {
         if (err) {
           console.error("Failed to initialize scanner", err);
-          setScanError("Failed to access camera");
+          setScanError("Failed to access camera. " + (err.message || 'Unknown error'));
           setIsScanning(false);
           return;
         }
         
+        console.log("Quagga initialized successfully, starting...");
+        
+        // Register detection callback
+        scannerRef.current.onDetected(detectionHandler);
+        
+        // Start scanning
         scannerRef.current.start();
-      });
-
-      scannerRef.current.onDetected((result: any) => {
-        if (result && result.codeResult) {
-          onDetected(result.codeResult.code);
-          if (scannerRef.current) {
-            scannerRef.current.stop();
-            setIsScanning(false);
-          }
-        }
       });
     } catch (error) {
       console.error("Error starting scanner", error);
-      setScanError("Failed to start scanner");
+      setScanError("Failed to start scanner: " + (error instanceof Error ? error.message : String(error)));
       setIsScanning(false);
     }
   };
@@ -103,12 +140,17 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
 
       {isScanning ? (
         <>
-          <video 
-            ref={videoRef} 
-            className="w-full h-full object-cover"
-            playsInline
-          />
-          <div className="scan-line w-full h-0.5 bg-primary-500 absolute left-0"></div>
+          <div className="relative h-full w-full overflow-hidden bg-black">
+            <video 
+              ref={videoRef} 
+              className="w-full h-full object-cover"
+              autoPlay
+              playsInline
+              muted
+            />
+            <div className="scan-line w-full h-1 bg-primary-500 opacity-60 absolute left-0 top-1/2 transform -translate-y-1/2 animate-pulse"></div>
+            <div className="absolute inset-0 border-2 border-primary-400 opacity-40 pointer-events-none"></div>
+          </div>
           {scanError && (
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-red-500 text-white text-center">
               {scanError}
