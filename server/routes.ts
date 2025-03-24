@@ -4,8 +4,11 @@ import { storage } from "./storage";
 import { productSchema, insertFavoriteSchema, insertSearchHistorySchema } from "@shared/schema";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication routes and middleware
+  setupAuth(app);
   // Get product by barcode
   app.get("/api/products/barcode/:barcode", async (req: Request, res: Response) => {
     try {
