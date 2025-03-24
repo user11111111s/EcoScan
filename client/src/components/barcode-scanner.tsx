@@ -148,7 +148,7 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
               playsInline
               muted
             />
-            <div className="scan-line w-full h-1 bg-primary-500 opacity-60 absolute left-0 top-1/2 transform -translate-y-1/2 animate-pulse"></div>
+            <div className="scan-line w-full h-1 bg-primary-500 opacity-60 absolute left-0"></div>
             <div className="absolute inset-0 border-2 border-primary-400 opacity-40 pointer-events-none"></div>
           </div>
           {scanError && (

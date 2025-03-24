@@ -78,10 +78,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Add favorite
-  app.post("/api/favorites", async (req: Request, res: Response) => {
+  // Middleware to check if user is authenticated
+  const isAuthenticated = (req: Request, res: Response, next: Function) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    return res.status(401).json({ message: "Authentication required" });
+  };
+
+  // Add favorite - protected route
+  app.post("/api/favorites", isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const favoriteData = insertFavoriteSchema.parse(req.body);
+      // Use the authenticated user's ID
+      const favoriteData = insertFavoriteSchema.parse({
+        ...req.body,
+        userId: req.user!.id // TypeScript knows req.user exists because of isAuthenticated
+      });
       
       // Validate that the product exists before adding to favorites
       if (favoriteData.productId) {
@@ -104,7 +116,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get favorites by user ID
+  // Get favorites for the authenticated user
+  app.get("/api/favorites", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const favorites = await storage.getFavoritesByUserId(userId);
+      return res.json(favorites);
+    } catch (error) {
+      return res.status(500).json({ message: "Failed to retrieve favorites" });
+    }
+  });
+  
+  // Remove favorite - protected route
+  app.delete("/api/favorites/:id", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid favorite ID" });
+      }
+      
+      // First check if the favorite belongs to the authenticated user
+      const favorites = await storage.getFavoritesByUserId(req.user!.id);
+      const favoriteExists = favorites.some(f => f.id === id);
+      
+      if (!favoriteExists) {
+        return res.status(404).json({ message: "Favorite not found or access denied" });
+      }
+      
+      const success = await storage.removeFavorite(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Favorite not found" });
+      }
+      
+      return res.status(204).send();
+    } catch (error) {
+      return res.status(500).json({ message: "Failed to remove favorite" });
+    }
+  });
+  
+  // Get recent searches for the authenticated user
+  app.get("/api/search-history", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = req.user!.id;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const searches = await storage.getRecentSearches(userId, limit);
+      
+      return res.json(searches);
+    } catch (error) {
+      return res.status(500).json({ message: "Failed to retrieve search history" });
+    }
+  });
+  
+  // Keep backward compatibility for now - can be removed later
   app.get("/api/favorites/user/:userId", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.userId);
@@ -120,28 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Remove favorite
-  app.delete("/api/favorites/:id", async (req: Request, res: Response) => {
-    try {
-      const id = Number(req.params.id);
-      
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid favorite ID" });
-      }
-      
-      const success = await storage.removeFavorite(id);
-      
-      if (!success) {
-        return res.status(404).json({ message: "Favorite not found" });
-      }
-      
-      return res.status(204).send();
-    } catch (error) {
-      return res.status(500).json({ message: "Failed to remove favorite" });
-    }
-  });
-  
-  // Get recent searches
+  // Keep backward compatibility for now - can be removed later
   app.get("/api/search-history/user/:userId", async (req: Request, res: Response) => {
     try {
       const userId = Number(req.params.userId);
