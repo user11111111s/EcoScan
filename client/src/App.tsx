@@ -8,6 +8,9 @@ import Home from "./pages/home";
 import ProductDetails from "./pages/product-details";
 import Favorites from "./pages/favorites";
 import NotFound from "@/pages/not-found";
+import AuthPage from "@/pages/auth-page";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/lib/protected-route";
 import { useState } from "react";
 
 function Router() {
@@ -15,7 +18,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/product/:id" component={ProductDetails} />
-      <Route path="/favorites" component={Favorites} />
+      <ProtectedRoute path="/favorites" component={Favorites} />
+      <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -42,10 +46,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <div className={darkMode ? "dark" : ""}>
         <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 transition-colors duration-200">
-          <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-          <Router />
+          <AuthProvider>
+            <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            <Router />
+            <BottomNavigation />
+          </AuthProvider>
           <Toaster />
-          <BottomNavigation />
         </div>
       </div>
     </QueryClientProvider>
