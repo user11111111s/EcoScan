@@ -1,22 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import BarcodeScanner from "./barcode-scanner";
 import { useScanner } from "@/hooks/use-scanner";
 import { useToast } from "@/hooks/use-toast";
+import { getRecentSearches } from "@/lib/api";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
 
 interface ScanSectionProps {
-  recentSearches?: string[];
+  initialSearches?: string[];
 }
 
-export default function ScanSection({ recentSearches = [] }: ScanSectionProps) {
+export default function ScanSection({ initialSearches = [] }: ScanSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const { scanBarcode, searchProduct, isLoading } = useScanner();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  
+  // Fetch recent searches if user is authenticated
+  const { data: searchHistory, isLoading: isLoadingHistory } = useQuery({
+    queryKey: ['/api/search-history'],
+    queryFn: () => getRecentSearches(5),
+    enabled: !!user // Only run if user is authenticated
+  });
+  
+  // Extract search queries from search history
+  const recentSearches = searchHistory 
+    ? searchHistory.map(item => item.query)
+    : initialSearches;
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();

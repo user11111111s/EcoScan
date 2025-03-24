@@ -68,19 +68,23 @@ export async function getProductById(id: number): Promise<Product | null> {
 }
 
 // Favorites API
-export async function addFavorite(favorite: InsertFavorite): Promise<Favorite> {
+export async function addFavorite(productId: number): Promise<Favorite> {
   try {
-    const response = await apiRequest("POST", "/api/favorites", favorite);
-    return await response.json();
+    // We don't need to provide userId anymore as the server will get it from the session
+    const response = await apiRequest("POST", "/api/favorites", { productId });
+    const result = await response.json();
+    // Invalidate favorites cache on successful addition
+    queryClient.invalidateQueries({ queryKey: ['/api/favorites'] });
+    return result;
   } catch (error) {
     console.error("Failed to add favorite:", error);
     throw error;
   }
 }
 
-export async function getFavoritesByUserId(userId: number): Promise<Favorite[]> {
+export async function getFavorites(): Promise<Favorite[]> {
   try {
-    const response = await fetch(`/api/favorites/user/${userId}`, {
+    const response = await fetch(`/api/favorites`, {
       credentials: "include",
     });
     
@@ -95,6 +99,12 @@ export async function getFavoritesByUserId(userId: number): Promise<Favorite[]> 
   }
 }
 
+// Legacy function maintained for backward compatibility, can be removed later
+export async function getFavoritesByUserId(userId: number): Promise<Favorite[]> {
+  console.warn('getFavoritesByUserId is deprecated. Use getFavorites instead.');
+  return getFavorites();
+}
+
 export async function removeFavorite(id: number): Promise<void> {
   try {
     await apiRequest("DELETE", `/api/favorites/${id}`);
@@ -107,9 +117,9 @@ export async function removeFavorite(id: number): Promise<void> {
 }
 
 // Search History API
-export async function getRecentSearches(userId: number, limit: number = 10): Promise<SearchHistory[]> {
+export async function getRecentSearches(limit: number = 10): Promise<SearchHistory[]> {
   try {
-    const response = await fetch(`/api/search-history/user/${userId}?limit=${limit}`, {
+    const response = await fetch(`/api/search-history?limit=${limit}`, {
       credentials: "include",
     });
     
@@ -122,4 +132,10 @@ export async function getRecentSearches(userId: number, limit: number = 10): Pro
     console.error("Failed to fetch search history:", error);
     throw error;
   }
+}
+
+// Legacy function maintained for backward compatibility, can be removed later
+export async function getRecentSearchesByUserId(userId: number, limit: number = 10): Promise<SearchHistory[]> {
+  console.warn('getRecentSearchesByUserId is deprecated. Use getRecentSearches instead.');
+  return getRecentSearches(limit);
 }

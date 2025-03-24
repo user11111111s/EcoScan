@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScanLine, Clock, BarChart } from "lucide-react";
+import { ScanLine, Clock, BarChart, LogIn } from "lucide-react";
 import ScanSection from "@/components/scan-section";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
 
 export default function Home() {
-  // Hardcoded recent searches for now
-  const recentSearches = ["Oat Milk", "Paper Towels", "Dish Soap"];
+  // Default recent searches if the user isn't logged in
+  const defaultSearches = ["Oat Milk", "Paper Towels", "Dish Soap"];
   const [activeTab, setActiveTab] = useState("scanner");
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   
   return (
     <main className="container mx-auto px-4 pb-24">
@@ -40,25 +45,57 @@ export default function Home() {
         </div>
         
         <TabsContent value="scanner" className="mt-0">
-          <ScanSection recentSearches={recentSearches} />
+          <ScanSection initialSearches={defaultSearches} />
         </TabsContent>
         
         <TabsContent value="history" className="mt-0">
-          <div className="py-8 text-center">
-            <h2 className="text-2xl font-bold mb-3">Scan History</h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Your previously scanned products will appear here
-            </p>
-          </div>
+          {user ? (
+            <div className="py-8 text-center">
+              <h2 className="text-2xl font-bold mb-3">Scan History</h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Your previously scanned products will appear here
+              </p>
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <h2 className="text-2xl font-bold mb-3">Sign In Required</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Please sign in to view your scan history
+              </p>
+              <Button 
+                onClick={() => setLocation("/auth")}
+                className="bg-primary-500 hover:bg-primary-600 text-white"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="impact" className="mt-0">
-          <div className="py-8 text-center">
-            <h2 className="text-2xl font-bold mb-3">Environmental Impact</h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Track your environmental savings by choosing sustainable products
-            </p>
-          </div>
+          {user ? (
+            <div className="py-8 text-center">
+              <h2 className="text-2xl font-bold mb-3">Environmental Impact</h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Track your environmental savings by choosing sustainable products
+              </p>
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <h2 className="text-2xl font-bold mb-3">Sign In Required</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Please sign in to track your environmental impact
+              </p>
+              <Button 
+                onClick={() => setLocation("/auth")}
+                className="bg-primary-500 hover:bg-primary-600 text-white"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
+              </Button>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </main>

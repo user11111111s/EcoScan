@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Share, Heart } from "lucide-react";
+import { ArrowLeft, Share, Heart, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import EcoScore from "@/components/eco-score";
 import MetricBar from "@/components/metric-bar";
 import ProductCard from "@/components/product-card";
-import { getProductById, addFavorite } from "@/lib/api";
+import { getProductById, addFavorite, getFavorites } from "@/lib/api";
 import { type Product, type Alternative } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ProductDetails() {
   const [match, params] = useRoute<{ id: string }>("/product/:id");

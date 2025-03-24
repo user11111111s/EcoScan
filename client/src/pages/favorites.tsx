@@ -1,24 +1,23 @@
-import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import ProductCard from "@/components/product-card";
-import { getFavoritesByUserId, removeFavorite } from "@/lib/api";
+import { getFavorites, removeFavorite } from "@/lib/api";
 import { type Product } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Favorites() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  
-  // Using a temporary user ID for the MVP
-  const userId = 1;
+  const { user } = useAuth();
   
   const { data: favorites, isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/favorites', userId],
-    queryFn: () => getFavoritesByUserId(userId)
+    queryKey: ['/api/favorites'],
+    queryFn: () => getFavorites(),
+    enabled: !!user // Only run the query if the user is authenticated
   });
   
   const handleRemoveFavorite = async (id: number) => {
