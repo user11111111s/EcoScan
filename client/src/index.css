@@ -11,3 +11,19 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Custom animations */
+@keyframes scan-up-down {
+  0%, 100% {
+    transform: translate(-50%, -100px);
+  }
+  50% {
+    transform: translate(-50%, 100px);
+  }
+}
+
+@layer utilities {
+  .animate-scan-up-down {
+    animation: scan-up-down 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
