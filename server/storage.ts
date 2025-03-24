@@ -7,6 +7,8 @@ import {
   type SearchHistory,
   type InsertSearchHistory
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
 
 // Storage interface
 export interface IStorage {
@@ -28,6 +30,9 @@ export interface IStorage {
   // Search history methods
   addSearchHistory(history: InsertSearchHistory): Promise<SearchHistory>;
   getRecentSearches(userId: number, limit: number): Promise<SearchHistory[]>;
+  
+  // Session store
+  sessionStore: session.Store;
 }
 
 // Mock data for demonstration
@@ -87,6 +92,9 @@ const mockProducts: Product[] = [
   }
 ];
 
+// Setup memory store for sessions
+const MemoryStore = createMemoryStore(session);
+
 // In-memory storage implementation
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
@@ -98,6 +106,7 @@ export class MemStorage implements IStorage {
   currentProductId: number;
   currentFavoriteId: number;
   currentSearchId: number;
+  sessionStore: session.Store;
 
   constructor() {
     this.users = new Map();
@@ -113,6 +122,11 @@ export class MemStorage implements IStorage {
     // Initialize with mock products
     mockProducts.forEach(product => {
       this.products.set(product.id, product);
+    });
+    
+    // Initialize session store
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // 24 hours
     });
   }
 
