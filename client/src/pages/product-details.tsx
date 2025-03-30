@@ -102,14 +102,33 @@ export default function ProductDetails() {
     );
   }
 
+  const { user } = useAuth();
+  
+  // Check if product is in user's favorites
+  const { data: favorites } = useQuery({
+    queryKey: ['/api/favorites'],
+    queryFn: getFavorites,
+    enabled: !!user, // Only run query if user is authenticated
+    onSuccess: (data) => {
+      // Check if this product is in favorites
+      const isProductInFavorites = data?.some(fav => fav.productId === product.id);
+      setIsFavorite(isProductInFavorites);
+    }
+  });
+
   const handleAddToFavorites = async () => {
-    try {
-      await addFavorite({
-        userId: 1, // Temp user ID
-        productId: product.id,
-        productData: product,
-        createdAt: new Date().toISOString()
+    if (!user) {
+      // Redirect to auth page if not logged in
+      toast({
+        title: "Login Required",
+        description: "Please login to save products to favorites",
       });
+      setLocation('/auth');
+      return;
+    }
+    
+    try {
+      await addFavorite(product.id);
       
       setIsFavorite(true);
       toast({
