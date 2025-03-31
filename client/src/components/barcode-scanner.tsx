@@ -44,15 +44,27 @@ export default function BarcodeScanner({ onDetected, onClose, className }: Barco
   }, []);
 
   const startScanner = async () => {
-    setIsScanning(true);
-    setScanError(null);
-    console.log("Starting scanner...");
+    
+    try {
+      setIsScanning(true);
+      setScanError(null);
+      console.log("Starting scanner...");
 
-    if (!scannerRef.current) {
-      console.error("Scanner not initialized");
-      setScanError("Scanner not initialized. Please try again.");
+      if (!scannerRef.current) {
+        throw new Error("Scanner not initialized");
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment" } 
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error("Scanner error:", error);
+      setScanError(error instanceof Error ? error.message : "Failed to start camera. Please check camera permissions.");
       setIsScanning(false);
-      return;
     }
 
     try {
