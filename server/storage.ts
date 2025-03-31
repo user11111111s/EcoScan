@@ -64,8 +64,8 @@ const mockProducts: Product[] = [
     packaging_details: "Paper packaging from recycled materials."
   },
   {
-    id: 2,
-    name: "Eco Paper Towels",
+    id: 4,
+    name: "Paper Towels",
     brand: "GreenClean",
     category: "Household",
     barcode: "456789012345",
@@ -117,7 +117,7 @@ const mockProducts: Product[] = [
     packaging_details: "Tetra Pak with plant-based cap. Please rinse and recycle where facilities exist."
   },
   {
-    id: 2,
+    id: 5,
     name: "Bamboo Toothbrush",
     brand: "EcoSmile",
     category: "Personal Care",
@@ -217,14 +217,16 @@ export class MemStorage implements IStorage {
   }
   
   async searchProducts(query: string): Promise<Product[]> {
-    const lowerQuery = query.toLowerCase();
-    return Array.from(this.products.values()).filter(
-      (product) => 
-        product.name.toLowerCase().includes(lowerQuery) || 
-        product.brand.toLowerCase().includes(lowerQuery) ||
-        product.category.toLowerCase().includes(lowerQuery) ||
-        product.barcode.includes(query)
+    if (!query) return [];
+    const lowerQuery = query.toLowerCase().trim();
+    const results = Array.from(this.products.values()).filter(product => 
+      product.name.toLowerCase().includes(lowerQuery) || 
+      product.brand.toLowerCase().includes(lowerQuery) ||
+      product.category.toLowerCase().includes(lowerQuery) ||
+      product.barcode.includes(lowerQuery)
     );
+    console.log(`Search query "${query}" found ${results.length} results`);
+    return results;
   }
   
   async getProductById(id: number): Promise<Product | undefined> {
