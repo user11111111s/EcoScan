@@ -88,6 +88,21 @@ export default function ProductDetails() {
     );
   }
 
+
+  const { user } = useAuth();
+  
+  // Check if product is in user's favorites
+  const { data: favorites } = useQuery({
+    queryKey: ['/api/favorites'],
+    queryFn: getFavorites,
+    enabled: !!user, // Only run query if user is authenticated
+    onSuccess: (data) => {
+      // Check if this product is in favorites
+      const isProductInFavorites = data?.some(fav => fav.productId === product?.id);
+      setIsFavorite(isProductInFavorites);
+    }
+  });
+
   if (error || !product) {
     return (
       <div className="py-8 container mx-auto text-center">
@@ -101,20 +116,6 @@ export default function ProductDetails() {
       </div>
     );
   }
-
-  const { user } = useAuth();
-  
-  // Check if product is in user's favorites
-  const { data: favorites } = useQuery({
-    queryKey: ['/api/favorites'],
-    queryFn: getFavorites,
-    enabled: !!user, // Only run query if user is authenticated
-    onSuccess: (data) => {
-      // Check if this product is in favorites
-      const isProductInFavorites = data?.some(fav => fav.productId === product.id);
-      setIsFavorite(isProductInFavorites);
-    }
-  });
 
   const handleAddToFavorites = async () => {
     if (!user) {
