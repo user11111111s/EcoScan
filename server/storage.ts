@@ -64,30 +64,30 @@ const mockProducts: Product[] = [
     packaging_details: "Paper packaging from recycled materials."
   },
   {
-    id: 4,
-    name: "Paper Towels",
-    brand: "GreenClean",
-    category: "Household",
-    barcode: "456789012345",
-    ecoScore: "A",
+    id: 2,
+    name: "Reusable Water Bottle",
+    brand: "EcoHydrate",
+    category: "Drinkware",
+    barcode: "234567890123",
+    ecoScore: "A+",
     metrics: {
-      materials: 90,
-      carbonFootprint: 85,
+      materials: 95,
+      carbonFootprint: 92,
       recyclability: 100
     },
     impact: {
-      co2: "0.1kg CO₂e",
-      water: "10 liters",
+      co2: "0.2kg CO₂e",
+      water: "5 liters",
       packaging: "100% Recyclable",
-      land: "Sustainable forestry"
+      land: "Low impact"
     },
-    ingredients: "100% Recycled Paper",
+    ingredients: "Stainless steel, silicone grip",
     certifications: [
-      { name: "FSC Certified", color: "green" },
-      { name: "Biodegradable", color: "blue" }
+      { name: "BPA-Free", color: "green" },
+      { name: "Lifetime Warranty", color: "blue" }
     ],
-    production: "Made from post-consumer recycled materials",
-    packaging_details: "Minimal recycled paper packaging"
+    production: "Made from recycled stainless steel using renewable energy",
+    packaging_details: "Minimal recycled cardboard packaging"
   },
   {
     id: 3,
@@ -117,6 +117,32 @@ const mockProducts: Product[] = [
     packaging_details: "Tetra Pak with plant-based cap. Please rinse and recycle where facilities exist."
   },
   {
+    id: 4,
+    name: "Paper Towels",
+    brand: "GreenClean",
+    category: "Household",
+    barcode: "456789012345",
+    ecoScore: "A",
+    metrics: {
+      materials: 90,
+      carbonFootprint: 85,
+      recyclability: 100
+    },
+    impact: {
+      co2: "0.1kg CO₂e",
+      water: "10 liters",
+      packaging: "100% Recyclable",
+      land: "Sustainable forestry"
+    },
+    ingredients: "100% Recycled Paper",
+    certifications: [
+      { name: "FSC Certified", color: "green" },
+      { name: "Biodegradable", color: "blue" }
+    ],
+    production: "Made from post-consumer recycled materials",
+    packaging_details: "Minimal recycled paper packaging"
+  },
+  {
     id: 5,
     name: "Bamboo Toothbrush",
     brand: "EcoSmile",
@@ -141,6 +167,32 @@ const mockProducts: Product[] = [
     ],
     production: "Handcrafted using sustainable bamboo. Low-impact manufacturing.",
     packaging_details: "Cardboard packaging made from recycled materials. Fully compostable."
+  },
+  {
+    id: 6,
+    name: "Recycled Glass Cleaner",
+    brand: "GreenClean",
+    category: "Household",
+    barcode: "890123456789",
+    ecoScore: "A",
+    metrics: {
+      materials: 85,
+      carbonFootprint: 88,
+      recyclability: 95
+    },
+    impact: {
+      co2: "0.15kg CO₂e",
+      water: "8 liters",
+      packaging: "95% Recyclable",
+      land: "Low impact"
+    },
+    ingredients: "Water, vinegar, natural enzymes, essential oils",
+    certifications: [
+      { name: "Non-Toxic", color: "green" },
+      { name: "Cruelty-Free", color: "blue" }
+    ],
+    production: "Made with natural ingredients in a zero-waste facility",
+    packaging_details: "Refillable glass bottle with recycled plastic sprayer"
   }
 ];
 
