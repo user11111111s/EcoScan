@@ -89,7 +89,60 @@ const mockProducts: Product[] = [
     ],
     production: "Handcrafted using sustainable bamboo. Low-impact manufacturing.",
     packaging_details: "Cardboard packaging made from recycled materials. Fully compostable."
+  },
+  {
+    id: 3,
+    name: "Organic Quinoa",
+    brand: "EcoFoods",
+    category: "Grains",
+    barcode: "123456789012",
+    ecoScore: "A",
+    metrics: {
+      materials: 88,
+      carbonFootprint: 82,
+      recyclability: 95
+    },
+    impact: {
+      co2: "0.3kg CO₂e",
+      water: "25 liters",
+      packaging: "95% Recyclable",
+      land: "Sustainable farming"
+    },
+    ingredients: "100% Organic Quinoa",
+    certifications: [
+      { name: "Organic", color: "green" },
+      { name: "Fair Trade", color: "blue" }
+    ],
+    production: "Sustainably farmed using traditional methods.",
+    packaging_details: "Paper packaging from recycled materials."
+  },
+  {
+    id: 4,
+    name: "Recycled Paper Towels",
+    brand: "EcoClean",
+    category: "Household",
+    barcode: "456789012345",
+    ecoScore: "A-",
+    metrics: {
+      materials: 85,
+      carbonFootprint: 75,
+      recyclability: 100
+    },
+    impact: {
+      co2: "0.5kg CO₂e",
+      water: "30 liters",
+      packaging: "100% Recyclable",
+      land: "Low impact"
+    },
+    ingredients: "100% recycled paper fibers",
+    certifications: [
+      { name: "Recycled", color: "green" }
+    ],
+    production: "Made from post-consumer recycled materials.",
+    packaging_details: "Minimal recycled cardboard packaging."
   }
+
+
 ];
 
 // Setup memory store for sessions
